@@ -15,7 +15,7 @@ project "ModDLL"
     libdirs {"liblua53.a", "src/Lua535"}
     libdirs {"lua53.dll", "src/Lua535"}
     includedirs {"src/", "src/Lua535/include"}
-    files {"src/**.h", "src/**.cpp", "src/**.c"}
+    files {"src/**.h", "src/**.cpp", "src/**.c", "src/**.hpp"}
     defines {"MODDLL_EXPORTS"}
     
 
