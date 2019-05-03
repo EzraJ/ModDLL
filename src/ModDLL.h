@@ -19,7 +19,7 @@
 
 
 // Programmer Defined Variables(constant)
-const std::string VERSION = "1.0";
+const std::string VERSION = "1.1";
 
 // Macro Definitions
 
