@@ -249,14 +249,18 @@ bool run(changes change) {
 		for (int i = 0; i <= strParse.size() - 1; i++) {
 			strParse[i](change, parseBuffer);
 		}
-		if (special.find(parseBuffer[0]) != special.end()) {
+		if (special.find(parseBuffer[0]) != special.end() && parseBuffer.size() >= 2) {
 			special[parseBuffer[0]](change, parseBuffer);
 			return true;
+		}
+		else if (parseBuffer.size() == 1) {
+			std::cout << "Invalid arguments(requires more input)" << std::endl;
 		}
 
 		if (funcsChanges.find(change.input) == funcsChanges.end()) {
 			if (funcs.find(change.input) != funcs.end()) {
 				funcs[change.input]();
+
 				return true;
 			}
 			else {
