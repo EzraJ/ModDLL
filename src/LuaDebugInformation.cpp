@@ -16,10 +16,25 @@ LuaDebugInformation::LuaDebugInformation(std::string fName){
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	std::string fileContent = buffer.str();
+	std::string readFileBuffer;
+	std::cout << "Start reading" << std::endl;
+	file.close();
+	file.open(fName);
+	while (std::getline(file, readFileBuffer)) {
+		numberOfLines++;
+		std::cout << "Read line: " << readFileBuffer << std::endl;
+	}
 
 }
 
+std::string LuaDebugInformation::FNAME() {
+	return LuaDebugInformation::fileName;
+}
+
+int LuaDebugInformation::lineNumber() {
+	return LuaDebugInformation::numberOfLines;
+}
 
 LuaDebugInformation::~LuaDebugInformation(){
-
+	file.close();
 }

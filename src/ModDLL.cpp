@@ -128,10 +128,41 @@ void list(changes change) {
 
 void help();
 
-void man(changes change) {
+void man(changes change, std::vector<std::string> bufferVector) {
 	std::ifstream manFile("man.txt");
-	std::string fileBuffer = std::string(std::istreambuf_iterator<char>(manFile), std::istreambuf_iterator<char>());
-	std::cout << fileBuffer;
+	if (manFile.good()) {
+		std::cout << "Succesfully opened up man file" << std::endl;
+	}
+	else {
+		std::cout << "ERROR: Man file corrupted/not found" << std::endl;
+		return;
+	}
+
+	manFile.close();
+	manFile.open("man.txt");
+	std::string keyWord = bufferVector[1];
+	std::string buffer;
+	int currentLine = 0;
+	std::string printInformation;
+	while (std::getline(manFile, buffer)) {
+		currentLine++;
+		if (buffer.find(keyWord, 0) != std::string::npos) {
+			printInformation += buffer;
+			break;
+		}
+	}
+	
+	while (std::getline(manFile, buffer)) {
+		if (buffer != "SEP") {
+			printInformation += "\n" + buffer;
+		}
+		else {
+			break;
+		}
+	}
+
+	std::cout << printInformation << std::endl;
+	manFile.close();
 }
 
 void echoFunction(changes change, std::vector<std::string> bufferVector) {
@@ -153,9 +184,9 @@ void variableParse(changes change, std::vector<std::string> &bufferVector);
 
 std::unordered_map<std::string, std::string> variableSpace = { {"home", "H:/Desktop"} };
 std::vector<std::function<void(changes, std::vector<std::string>&)>> strParse = { variableParse };
-std::unordered_map<std::string, std::function<void(changes, std::vector<std::string>)>> special = { {"LuaScript", ModDLLLua::luaScript}, {"cd", dirAdv}, {"touch", make}, {"cat", cat}, {"echo", echoFunction}, {"alias", alias}, {"LuaDebug", ModDLLLua::debugInformation} };
+std::unordered_map<std::string, std::function<void(changes, std::vector<std::string>)>> special = { {"man", man}, {"LuaScript", ModDLLLua::luaScript}, {"cd", dirAdv}, {"touch", make}, {"cat", cat}, {"echo", echoFunction}, {"alias", alias}, {"LuaDebug", ModDLLLua::startDebug} };
 std::unordered_map<std::string, std::function<void()>> funcs = { {"debug", debug}, {"clear", clear}, {"VERSION", printVersion}, {"programs", help} };
-std::unordered_map<std::string, std::function<void(changes)>> funcsChanges = { {"exit", modExit}, {"ls", list}, {"man", man}, {"lua", ModDLLLua::enterLua} };
+std::unordered_map<std::string, std::function<void(changes)>> funcsChanges = { {"exit", modExit}, {"ls", list}, {"lua", ModDLLLua::enterLua} };
 
 bool debugMode = false;
 
@@ -253,14 +284,13 @@ bool run(changes change) {
 			special[parseBuffer[0]](change, parseBuffer);
 			return true;
 		}
-		else if (parseBuffer.size() == 1) {
+		else if (parseBuffer.size() == 1 && special.find(parseBuffer[0]) != special.end()) {
 			std::cout << "Invalid arguments(requires more input)" << std::endl;
 		}
 
 		if (funcsChanges.find(change.input) == funcsChanges.end()) {
 			if (funcs.find(change.input) != funcs.end()) {
 				funcs[change.input]();
-
 				return true;
 			}
 			else {

@@ -74,8 +74,9 @@ namespace ModDLLLua {
 	}
 
 
-	void debugInformation(changes change, std::vector<std::string> bufferVector) {
+	void startDebug(changes change, std::vector<std::string> bufferVector) {
 		LuaDebugInformation myInfo(bufferVector[1]);
+		std::cout << "L: " << myInfo.lineNumber() << std::endl;
 	}
 
 }

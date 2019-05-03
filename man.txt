@@ -1,0 +1,54 @@
+man - This is the vanilla ModDLL manual command. It will show the manuals for each command
+Each command when called by man will have tokens to indicate if the command works with a feature
+    [$] = Works with variables
+    man [keyword]
+SEP
+LuaScript - This will run a script in lua. [$] 
+LuaScript [luascript with file name ending]
+    LuaScript myScript.lua
+SEP
+cd - Change directory. This command will change your directory according to the input(assuming directory exists) [$]
+    cd C:\Windows
+SEP
+touch - This will create a file with the arguments name. (Make sure to include file type) [$]
+    touch main.cpp
+    touch myTextFile.txt
+SEP
+cat - Shows raw content of a file. [$]
+    cat File.txt
+SEP
+echo - This will print the contents of your arguments into the terminal. [$]
+    echo Hello World!
+    echo $variableName
+SEP
+alias - This will create a variable when used correctly.
+Alias is case-sensitive(Everything must be separated by spaces) [$]
+    alias variableName = myData
+SEP
+LuaDebug - WIP [$]
+SEP
+debug - This command will activated debug mode, giving you more insights of how ModDLL
+processes information, and will print out other details.
+    debug
+SEP
+clear - Clears the screen.
+    clear
+SEP
+VERSION - Shows the current version that is reported by the ModDLL file.
+    VERSION
+SEP
+programs - This will show a list of programs that are available
+according to your ModDLL file.
+    programs
+SEP
+exit - Exits mod.exe and unloads ModDLL
+    exit
+SEP
+ls - Shows ALL files in directory. Stands for "list", and shows hidden files &
+directories.
+    ls
+SEP
+lua - Activates a live session of lua, variables and other lua-normal things are 
+possile
+    lua
+SEP
