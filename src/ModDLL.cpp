@@ -135,12 +135,10 @@ void man(changes change) {
 }
 
 void echoFunction(changes change, std::vector<std::string> bufferVector) {
-	std::string toPrint;
 	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
 		if (*it != "echo") {
-			toPrint += *it + " ";
+			std::cout << *it << " ";
 		}
-		std::cout << toPrint;
 	}
 	std::cout << std::endl;
 }
@@ -169,10 +167,24 @@ bool debugMode = false;
 void alias(changes change, std::vector<std::string> bufferVector) {
 	tokenParser token(unparse(bufferVector), "alias");
 	if (debugMode) {
-		std::cout << "arg0: " << token.getString("arg0") << std::endl << "arg1: " << token.getString("arg1") << std::endl << "arg2: " << token.getString("arg2") << std::endl;
+		std::cout << "\narg0: " << token.getString("arg0") << std::endl << "arg1: " << token.getString("arg1") << std::endl << "arg2: " << token.getString("arg2") << std::endl;
 	}
 	if (token.getType("arg1") == parserType::setter) {
-		variableSpace[token.getString("arg0")] = token.getString("arg2");
+		std::string variableMake;
+		for (int i = 2; i < token.getNumberOfArgs(); i++) {
+			if (i == 2) {
+				variableMake += std::string(token.getString("arg" + std::to_string(i)));
+			}
+			else {
+				variableMake += std::string(" " + token.getString("arg" + std::to_string(i)));
+			}
+			
+			if (debugMode) {
+				std::cout << "var[" << i << "]: " << token.getString(std::string("arg" + std::to_string(i)));
+				std::cin.get();
+			}
+		}
+		variableSpace[token.getString("arg0")] = variableMake;
 	}
 	std::cout << std::endl;
 }
@@ -182,11 +194,19 @@ void variableParse(changes change, std::vector<std::string> &bufferVector) {
 	int i = 0;
 	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
 		std::string strBuffer = *it;
-		if (strBuffer[0] == '$' && variableSpace[strBuffer.substr(1, strBuffer.length())] != STRNULL) {
+		if (strBuffer[0] == '$'  && variableSpace.find(strBuffer.substr(1, strBuffer.length())) != variableSpace.end()) {
 			strBuffer = variableSpace[strBuffer.substr(1, strBuffer.length())];
+			bufferVector[i] = strBuffer;
+			if (debugMode) {
+				std::cout << "DEBUG(buffer, calc): " << strBuffer << ", " << bufferVector[i] << std::endl;
+			}
 		}
-		bufferVector[i] = strBuffer;
 		i++;
+	}
+	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
+		if (debugMode) {
+			std::cout << "Contents of buffer: " << *it << std::endl;
+		}
 	}
 }
 

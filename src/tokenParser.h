@@ -42,12 +42,13 @@ public:
 			}
 		}
 		for (std::vector<std::string>::iterator it = excludedProcess.begin(); it != excludedProcess.end(); it++) {
+			numberOfArgs++;
 			advance(*it);
 		}
 	}
 
 	void advance(std::string adv) {
-
+		
 		tokens[std::string("arg" + std::to_string(argT))] = adv;
 		argT++;
 		advanceType(adv);
@@ -73,8 +74,12 @@ public:
 		tokenTypes[std::string("arg" + std::to_string(argType))] = bufferType;
 		argType++;
 	}
+	int getNumberOfArgs() {
+		return numberOfArgs;
+	}
 
 private:
+	int numberOfArgs = 0;
 	int argT = 0;
 	int argType = 0;
 	std::unordered_map<std::string, std::string> tokens;
