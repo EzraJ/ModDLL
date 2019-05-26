@@ -1,5 +1,12 @@
 #pragma once
-#include "ModDLL.h"
+#ifndef LUADEBUGINFORMATION_INCLUDE
+#define LUADEBUGINFORMATION_INCLUDE
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
 
 class luaTokenParser {
 
@@ -19,3 +26,4 @@ class LuaDebugInformation
 		int numberOfLines = 0;
 };
 
+#endif

@@ -4,20 +4,17 @@
 //
 
 #include "stdafx.h"
-#include "ModDLLLua.h"
 #include "ModDLL.h"
-#include "tokenParser.h"
-
+#include "ModDLLLua.h"
+#include "functionDef.h"
 
 // Programmer Defined Variables(constant)
 
 
 // Programmer Defined Functions
-std::string getPath() {
-	char path[256];
-	_getcwd(path, sizeof(path));
-	return std::string(path);
-}
+
+
+bool debugMode = false;
 
 
 
@@ -51,133 +48,7 @@ std::string unparse(std::vector<std::string> inp) {
 
 
 
-void clear() {
-	system("cls");
-}
-
-bool runProgram(changes change, std::vector<std::string> bufferVector) {
-
-	std::ifstream fileBuffer(bufferVector[0]);
-	if (fileBuffer.good() && bufferVector.size() == 1) {
-		std::cout << "Successfully ran[\"" << bufferVector[0] << "\"]" << std::endl;
-		system(std::string("start " + bufferVector[0]).c_str());
-		return true;
-	}
-	else {
-		return false;
-	}
-
-}
-
-void dirAdv(changes change, std::vector<std::string> bufferVector) {
-	std::string oldDir = change.dataChange.stringChange;
-	std::string buffer;
-	bool boolBuf = false;
-	buffer = bufferVector[1];
-	if (_chdir(buffer.c_str()) == -1) {
-		boolBuf = false;
-		if (_chdir(std::string(change.dataChange.stringChange + "\\" + buffer).c_str()) == -1) {
-			std::cout << "Invalid directory." << std::endl;
-			_chdir(oldDir.c_str());
-			change.dataChange.stringChange = oldDir;
-			return;
-		}
-		else {
-			boolBuf = true;
-		}
-	}
-	if (boolBuf) {
-		change.dataChange.stringChange = change.dataChange.stringChange + " " + buffer;
-	}
-	else {
-		change.dataChange.stringChange = getPath();
-	}
-}
-
-void printVersion() {
-	std::cout << 'v'  << VERSION << std::endl;
-}
-
-void make(changes change, std::vector<std::string> bufferVector) {
-	std::ofstream file(bufferVector[1]);
-	file << bufferVector[1];
-	file.close();
-}
-
-void cat(changes change, std::vector<std::string> bufferVector){
-	std::string fname = bufferVector[1];
-	std::ifstream file(fname);
-	if (file.is_open()) {
-		std::cout << file.rdbuf() << std::endl;
-	}
-	file.close();
-}
-
-void list(changes change) {
-	std::string path = change.dataChange.stringChange;
-	for (const auto& entry : std::experimental::filesystem::v1::directory_iterator(path)) {
-		std::string buffer = entry.path().u8string();
-		std::string::size_type test = buffer.find(getPath() + "\\");
-		if (test != std::string::npos) {
-			buffer.erase(test, std::string(getPath() + "\\").length());
-		}
-		std::cout << buffer << std::endl;
-	}
-	std::cout << std::endl;
-}
-
 void help();
-
-void man(changes change, std::vector<std::string> bufferVector) {
-	std::ifstream manFile("man.txt");
-	if (manFile.good()) {
-		std::cout << "Succesfully opened up man file" << std::endl;
-	}
-	else {
-		std::cout << "ERROR: Man file corrupted/not found" << std::endl;
-		return;
-	}
-
-	manFile.close();
-	manFile.open("man.txt");
-	std::string keyWord = bufferVector[1];
-	std::string buffer;
-	int currentLine = 0;
-	std::string printInformation;
-	while (std::getline(manFile, buffer)) {
-		currentLine++;
-		if (buffer.find(keyWord, 0) != std::string::npos) {
-			printInformation += buffer;
-			break;
-		}
-	}
-	
-	while (std::getline(manFile, buffer)) {
-		if (buffer != "SEP") {
-			printInformation += "\n" + buffer;
-		}
-		else {
-			break;
-		}
-	}
-
-	std::cout << printInformation << std::endl;
-	manFile.close();
-}
-
-void echoFunction(changes change, std::vector<std::string> bufferVector) {
-	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
-		if (*it != "echo") {
-			std::cout << *it << " ";
-		}
-	}
-	std::cout << std::endl;
-}
-
-
-void alias(changes change, std::vector<std::string> bufferVector);
-void variableParse(changes change, std::vector<std::string> &bufferVector);
-
 
 
 // Variables
@@ -187,59 +58,6 @@ std::vector<std::function<void(changes, std::vector<std::string>&)>> strParse = 
 std::unordered_map<std::string, std::function<void(changes, std::vector<std::string>)>> special = { {"man", man}, {"LuaScript", ModDLLLua::luaScript}, {"cd", dirAdv}, {"touch", make}, {"cat", cat}, {"echo", echoFunction}, {"alias", alias}, {"LuaDebug", ModDLLLua::startDebug} };
 std::unordered_map<std::string, std::function<void()>> funcs = { {"debug", debug}, {"clear", clear}, {"VERSION", printVersion}, {"programs", help} };
 std::unordered_map<std::string, std::function<void(changes)>> funcsChanges = { {"exit", modExit}, {"ls", list}, {"lua", ModDLLLua::enterLua} };
-
-bool debugMode = false;
-
-
-
-
-// Default Functions
-
-void alias(changes change, std::vector<std::string> bufferVector) {
-	tokenParser token(unparse(bufferVector), "alias");
-	if (debugMode) {
-		std::cout << "\narg0: " << token.getString("arg0") << std::endl << "arg1: " << token.getString("arg1") << std::endl << "arg2: " << token.getString("arg2") << std::endl;
-	}
-	if (token.getType("arg1") == parserType::setter) {
-		std::string variableMake;
-		for (int i = 2; i < token.getNumberOfArgs(); i++) {
-			if (i == 2) {
-				variableMake += std::string(token.getString("arg" + std::to_string(i)));
-			}
-			else {
-				variableMake += std::string(" " + token.getString("arg" + std::to_string(i)));
-			}
-			
-			if (debugMode) {
-				std::cout << "var[" << i << "]: " << token.getString(std::string("arg" + std::to_string(i)));
-				std::cin.get();
-			}
-		}
-		variableSpace[token.getString("arg0")] = variableMake;
-	}
-	std::cout << std::endl;
-}
-
-
-void variableParse(changes change, std::vector<std::string> &bufferVector) {
-	int i = 0;
-	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
-		std::string strBuffer = *it;
-		if (strBuffer[0] == '$'  && variableSpace.find(strBuffer.substr(1, strBuffer.length())) != variableSpace.end()) {
-			strBuffer = variableSpace[strBuffer.substr(1, strBuffer.length())];
-			bufferVector[i] = strBuffer;
-			if (debugMode) {
-				std::cout << "DEBUG(buffer, calc): " << strBuffer << ", " << bufferVector[i] << std::endl;
-			}
-		}
-		i++;
-	}
-	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
-		if (debugMode) {
-			std::cout << "Contents of buffer: " << *it << std::endl;
-		}
-	}
-}
 
 void help() {
 	std::vector<std::string> funcHelp;
@@ -259,16 +77,61 @@ void help() {
 	}
 }
 
+void alias(changes change, std::vector<std::string> bufferVector) {
+	tokenParser token(unparse(bufferVector), "alias");
+	if (debugMode) {
+		std::cout << "\narg0: " << token.getString("arg0") << std::endl << "arg1: " << token.getString("arg1") << std::endl << "arg2: " << token.getString("arg2") << std::endl;
+	}
+	if (token.getType("arg1") == parserType::setter) {
+		std::string variableMake;
+		for (int i = 2; i < token.getNumberOfArgs(); i++) {
+			if (i == 2) {
+				variableMake += std::string(token.getString("arg" + std::to_string(i)));
+			}
+			else {
+				variableMake += std::string(" " + token.getString("arg" + std::to_string(i)));
+			}
+
+			if (debugMode) {
+				std::cout << "var[" << i << "]: " << token.getString(std::string("arg" + std::to_string(i)));
+				std::cin.get();
+			}
+		}
+		variableSpace[token.getString("arg0")] = variableMake;
+	}
+	std::cout << std::endl;
+}
+
+
+void variableParse(changes change, std::vector<std::string> & bufferVector) {
+	int i = 0;
+	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
+		std::string strBuffer = *it;
+		if (strBuffer[0] == '$' && variableSpace.find(strBuffer.substr(1, strBuffer.length())) != variableSpace.end()) {
+			strBuffer = variableSpace[strBuffer.substr(1, strBuffer.length())];
+			bufferVector[i] = strBuffer;
+			if (debugMode) {
+				std::cout << "DEBUG(buffer, calc): " << strBuffer << ", " << bufferVector[i] << std::endl;
+			}
+		}
+		i++;
+	}
+	for (std::vector<std::string>::iterator it = bufferVector.begin(); it != bufferVector.end(); it++) {
+		if (debugMode) {
+			std::cout << "Contents of buffer: " << *it << std::endl;
+		}
+	}
+}
 
 
 void debug() {
 	debugMode = !debugMode;
 }
 
-void modExit(changes change)
-{
-	change.dataChange.boolChange = false;
-}
+
+
+
+
 
 
 // Core Functions
@@ -320,7 +183,7 @@ void init(changes change, properties windowProperties) {
 	SetConsoleWindowInfo(windowProperties.consoleHandle, TRUE, &windowProperties.windowSize);
 	SetConsoleTitleW(windowProperties.windowName);
 	char v[FILENAME_MAX];
-	_getcwd(v, sizeof(v));
+	getcwd(v, sizeof(v));
 	change.dataChange.stringChange = v;
 	std::cout << "VERSION: " << VERSION << std::endl;
 }

@@ -1,4 +1,7 @@
 #pragma once
+#ifndef MODDLLLUA_INCLUDE
+#define MODDLLLUA_INCLUDE
+
 #include "ModDLL.h"
 #include "LuaDebugInformation.h"
 #include "LuaDebugger.h"
@@ -80,3 +83,5 @@ namespace ModDLLLua {
 	}
 
 }
+
+#endif

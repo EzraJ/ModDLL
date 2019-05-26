@@ -1,7 +1,11 @@
 #pragma once
+#ifndef TOKENPARSER_INCLUDE
+#define TOKENPARSER_INCLUDE
+
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 #include <string>
+#include "ModDLL.h"
 
 #define STRNULL ""
 
@@ -93,3 +97,5 @@ private:
 	}
 
 };
+
+#endif

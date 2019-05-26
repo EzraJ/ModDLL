@@ -1,4 +1,7 @@
 #pragma once
+#ifndef MODDLL_INCLUDE
+#define MODDLL_INCLUDE
+
 #include <iostream>
 #include <windows.h>
 #include <string>
@@ -14,7 +17,6 @@
 #include <string>
 #include <sstream>
 #include <iterator>
-
 
 
 
@@ -67,6 +69,8 @@ enum parserType {
 };
 
 
+
+
 MODDLL_API void applyWindowProperties(properties windowProperties);
 MODDLL_API std::vector<std::string> parse(std::string inp);
 MODDLL_API void init(changes change, properties windowProperties); // Initialize variables, functions, and various other settings.
@@ -74,3 +78,4 @@ MODDLL_API bool run(changes change); // Function to be regularly ran that handle
 MODDLL_API void modExit(changes change);
 MODDLL_API void debug();
 
+#endif
